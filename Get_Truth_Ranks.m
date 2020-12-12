@@ -2,24 +2,26 @@
 
 %% OxCGRT
 
-countries = unique(OxCGRT(:,1));
+countries = unique(OxCGRT(:,1)); % Alphebetizes countries
 n = size(countries,1);
 
 % Get the number of entries by date
 lowbound = find(OxCGRT.('Date')==20200123, 1);
-upbound = find(OxCGRT.('Date')==20201130, 1);
+upbound = find(OxCGRT.('Date')==20201120, 1); % Changed from 11/30 to 11/20
 
 % Tracks the totals over all of the categories at each date
 totals_OxCGRT = zeros(height(countries),upbound);
 
 for i = 1:height(countries)
     % For each country
+    c = countries.CountryName(i);
+    country_data = OxCGRT(strcmp(OxCGRT.CountryName,c),:);
     
     % Get the columns for the first and last date for the country
-    loc1 = find(OxCGRT.('Date')==20200123, i);loc1=loc1(end);
-    loc2 = find(OxCGRT.('Date')==20201130, i);loc2=loc2(end);
+    loc1 = find(country_data.('Date')==20200123, 1);%loc1=loc1(end);
+    loc2 = find(country_data.('Date')==20201120, 1);%loc2=loc2(end); % Changed from 11/30 to 11/20
     
-    tot = sum(OxCGRT{loc1:loc2,[7:2:21,22,24,27,29:30,33]},2);
+    tot = sum(country_data{loc1:loc2,[7:2:21,22,24,29:30,33]},2); % May remove 24
     
     totals_OxCGRT(i,lowbound:upbound) = tot;
     
@@ -36,19 +38,21 @@ countries = unique(OurWorld(:,3));
 
 % Get the number of entries by date
 lowbound = find(OurWorld.('date')==datetime([2020,01,23]), 1);
-upbound = find(OurWorld.('date')==datetime([2020,11,30]), 1);
+upbound = find(OurWorld.('date')==datetime([2020,11,20]), 1);
 
 % Tracks the totals over all of the categories at each date
 totals_OurWorld = zeros(height(countries),upbound);
 
 for i = 1:height(countries)
     % For each country
+    c = countries.location(i);
+    country_data = OurWorld(strcmp(OurWorld.location,c),:);
     
     % Get the columns for the first and last date for the country
-    loc1 = find(OurWorld.('date')==datetime([2020,01,23]), i);loc1=loc1(end);
-    loc2 = find(OurWorld.('date')==datetime([2020,11,30]), i);loc2=loc2(end);
+    loc1 = find(OurWorld.('date')==datetime([2020,01,23]), 1);
+    loc2 = find(OurWorld.('date')==datetime([2020,11,20]), 1);
     
-    rate = OurWorld{loc1:loc2,12}; % Column 12: new cases per million
+    rate = country_data{loc1:loc2,12}; % Column 12: new cases per million
     
     totals_OurWorld(i,lowbound:upbound) = rate;
     
@@ -81,6 +85,3 @@ bottom80_normalized = T(floor(n*0.20)+1:end,:);
 
 % safe = normalize(top20,1);
 % unsafe = normalize(bottom80,1);
-
-
-
