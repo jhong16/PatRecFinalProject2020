@@ -18,8 +18,8 @@ for i = 1:height(countries)
     country_data = OxCGRT(strcmp(OxCGRT.CountryName,c),:);
     
     % Get the columns for the first and last date for the country
-    loc1 = find(country_data.('Date')==20200123, 1);%loc1=loc1(end);
-    loc2 = find(country_data.('Date')==20201120, 1);%loc2=loc2(end); % Changed from 11/30 to 11/20
+    loc1 = find(country_data.('Date')==20200123, 1);
+    loc2 = find(country_data.('Date')==20201120, 1); % Changed from 11/30 to 11/20
     
     tot = sum(country_data{loc1:loc2,[7:2:21,22,24,29:30,33]},2); % May remove 24
     
@@ -63,25 +63,45 @@ totals_OurWorld = table(countries.location,totals_OurWorld);
 
 %% Determine 'safe' and 'unsafe' countries
 
-% Top 20% = 'safe'; Bottom 80% = 'unsafe'
+% Top (cutoff)% = 'safe'; Bottom (100-cutoff)% = 'unsafe'
 
 % Examine number of new cases in the last month for each country
 [~,idx] = sort(sum(totals_OurWorld.Var2(:,end-30:end),2));
 
-top20_countries = countries.location(idx(1:floor(n*0.20)));
-bottom80_countries = countries.location(idx(floor(n*0.20)+1:end));
+% Select cutoff percentage:
+% b=[safe;unsafe];
+% b=b(:,2);
+% figure,plot(1:(length(b)),b)
+% hold on, xlabel('Country Rank in New Cases per Million')
+% ylabel('New Cases per Million (Averaged Over Last Month)')
+% title('New Cases per Million vs. Country Rank in New Cases per Million')
+
+% figure,loglog(1:(length(b)),b)
+% hold on, xlabel('Log of Country Rank in New Cases per Million')
+% ylabel('Log of New Cases per Million (Averaged Over Last Month)')
+% title('New Cases per Million vs. Country Rank in New Cases per Million (Log Plot)')
+
+
+
+cutoff = 80/n; % Percentage cutoff: 100/n = 0.6 = 60% (due to above plot)
+
+safe_countries = countries.location(idx(1:floor(n*cutoff)));
+unsafe_countries = countries.location(idx(floor(n*cutoff)+1:end));
 
 % [Government policy total; case total]
-top20 = [sum(totals_OxCGRT.Var2(idx(1:floor(n*0.20)),end-30:end),2)/31,...
-        sum(totals_OurWorld.Var2(idx(1:floor(n*0.20)),end-30:end),2)/31];
-bottom80 = [sum(totals_OxCGRT.Var2(idx(floor(n*0.20)+1:end),end-30:end),2)/31,...
-        sum(totals_OurWorld.Var2(idx(floor(n*0.20)+1:end),end-30:end),2)/31];
+safe = [sum(totals_OxCGRT.Var2(idx(1:floor(n*cutoff)),end-30:end),2)/31,...
+        sum(totals_OurWorld.Var2(idx(1:floor(n*cutoff)),end-30:end),2)/31];
+unsafe = [sum(totals_OxCGRT.Var2(idx(floor(n*cutoff)+1:end),end-30:end),2)/31,...
+        sum(totals_OurWorld.Var2(idx(floor(n*cutoff)+1:end),end-30:end),2)/31];
 
 
 % Normalize data
-T = normalize([top20;bottom80],1);
-top20_normalized = T(1:floor(n*0.20),:);
-bottom80_normalized = T(floor(n*0.20)+1:end,:);
+T = normalize([safe;unsafe],1);
+safe_normalized = T(1:floor(n*cutoff),:);
+unsafe_normalized = T(floor(n*cutoff)+1:end,:);
 
-% safe = normalize(top20,1);
-% unsafe = normalize(bottom80,1);
+% figure,scatter(safe(:,1),safe(:,2),'r')
+% hold on,scatter(unsafe(:,1),unsafe(:,2),'b')
+% legend('safe','unsafe')
+% xlabel('Avg Government policy score (last month)')
+% ylabel('Avg case total (last month)')
