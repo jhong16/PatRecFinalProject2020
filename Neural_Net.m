@@ -1,8 +1,7 @@
 
 % Define a neural network using with a hidden layer that has 2 nodes.*****
-net = fitnet(2, 'traingd');
-% Here, the second argument sets the value of ‘net.trainFcn’ to ‘traingd’
-% which is necessary to define gradient descent backpropagation.
+% Examine performance with different training functions: trainbr, traingd
+net = fitnet(2, 'trainbr');
 
 
 % Network initialization
@@ -10,8 +9,8 @@ net = initlay(net);
 
 
 % Change the activation functions in the hidden layer and the output
-% layer, and set both of them equal to ‘tansig’.*****
-net.layers{1}.transferFcn = 'tansig'; % Hidden layer*****
+% layer, and set both of them equal to ‘tansig’.
+net.layers{1}.transferFcn = 'tansig'; % Hidden layer
 net.layers{2}.transferFcn = 'tansig'; % Output layer
 
 
@@ -37,7 +36,15 @@ net.divideParam.testInd = (size(train_data,1)+size(val_data,1)+2):size(data,1);
 
 % Examine hidden layer weights
 % weights = getwb(net); % weights = [ Iw(:); b1(:); Lw(:); b2(:) ];
+Iw = cell2mat(net.IW);
+b1  = cell2mat(net.b(1));
+Lw = cell2mat(net.Lw);
+b2 = cell2mat(net.b(2));
 
+% comb (2x14)
+comb = [Iw,b1];
+weight_safe = comb(1,:);
+weight_unsafe = comb(2,:);
 
 % Using the trained network, determine the output for the test dataset and
 % calculate accuracy. 
@@ -59,23 +66,25 @@ fprintf("Total accuracy of test data: %.2f\n",(safe_correct + unsafe_correct)/si
 
 
 %% Results:
-% 100 safe:
-% categories = [7:2:21,22,24,29:30,33]:
-% Accuracy of predicting 'safe' test data: 0.90
-% Accuracy of predicting 'unsafe' test data: 0.58
-% Total accuracy of test data: 0.77
-
 % 80 safe:
 % categories = [7:2:21,22,24,29:30,33]:
+
+% ***
+% net = fitnet(2, 'traingd'):
 % Accuracy of predicting 'safe' test data: 0.76
 % Accuracy of predicting 'unsafe' test data: 0.76
 % Total accuracy of test data: 0.76
 
+% ***
+% net = fitnet(2, 'trainbr'):
+% Accuracy of predicting 'safe' test data: 0.86
+% Accuracy of predicting 'unsafe' test data: 0.80
+% Total accuracy of test data: 0.83
 
-%% Plot
 
-% figure,scatter(top20(:,1),top20(:,2),'r')
-% hold on,scatter(bottom80(:,1),bottom80(:,2),'b')
-% legend('safe','unsafe')
-% xlabel('Avg Government policy score (last month)')
-% ylabel('Avg case total (last month)')
+% ***
+% net = fitnet(2, 'traingdm')
+% Accuracy of predicting 'safe' test data: 0.84
+% Accuracy of predicting 'unsafe' test data: 0.67
+% Total accuracy of test data: 0.75
+
