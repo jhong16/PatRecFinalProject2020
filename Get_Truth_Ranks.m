@@ -69,17 +69,17 @@ totals_OurWorld = table(countries.location,totals_OurWorld);
 [~,idx] = sort(sum(totals_OurWorld.Var2(:,end-30:end),2));
 
 % Select cutoff percentage:
-% b=[safe;unsafe];
-% b=b(:,2);
-% figure,plot(1:(length(b)),b)
-% hold on, xlabel('Country Rank in New Cases per Million')
-% ylabel('New Cases per Million (Averaged Over Last Month)')
-% title('New Cases per Million vs. Country Rank in New Cases per Million')
+b=[safe;unsafe];
+b=b(:,2);
+figure,plot(1:(length(b)),b)
+hold on, xlabel('Country Rank in New Cases per Million')
+ylabel('New Cases per Million (Averaged Over Last Month)')
+title('New Cases per Million vs. Country Rank in New Cases per Million')
 
-% figure,loglog(1:(length(b)),b)
-% hold on, xlabel('Log of Country Rank in New Cases per Million')
-% ylabel('Log of New Cases per Million (Averaged Over Last Month)')
-% title('New Cases per Million vs. Country Rank in New Cases per Million (Log Plot)')
+figure,loglog(1:(length(b)),b)
+hold on, xlabel('Log of Country Rank in New Cases per Million')
+ylabel('Log of New Cases per Million (Averaged Over Last Month)')
+title('New Cases per Million vs. Country Rank in New Cases per Million (Log Plot)')
 
 
 
@@ -94,14 +94,13 @@ safe = [sum(totals_OxCGRT.Var2(idx(1:floor(n*cutoff)),end-30:end),2)/31,...
 unsafe = [sum(totals_OxCGRT.Var2(idx(floor(n*cutoff)+1:end),end-30:end),2)/31,...
         sum(totals_OurWorld.Var2(idx(floor(n*cutoff)+1:end),end-30:end),2)/31];
 
+% Get the resulting table of safe and unsafe countries with the associated
+% average of new cases per million people
+safe_tab = table(safe_countries, safe(:,2),'VariableNames',{'Country','Avg. New Cases Per Million'});
+unsafe_tab = table(unsafe_countries, unsafe(:,2),'VariableNames',{'Country','Avg. New Cases Per Million'});
 
 % Normalize data
 T = normalize([safe;unsafe],1);
 safe_normalized = T(1:floor(n*cutoff),:);
 unsafe_normalized = T(floor(n*cutoff)+1:end,:);
 
-% figure,scatter(safe(:,1),safe(:,2),'r')
-% hold on,scatter(unsafe(:,1),unsafe(:,2),'b')
-% legend('safe','unsafe')
-% xlabel('Avg Government policy score (last month)')
-% ylabel('Avg case total (last month)')
