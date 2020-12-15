@@ -1,6 +1,6 @@
 
-% Define a neural network using with a hidden layer that has 2 nodes.*****
-% Examine performance with different training functions: trainbr, traingd
+% Define a neural network using with a hidden layer.
+% Examine performance with different training functions: trainbr, traingd, traingdm
 net = fitnet(2, 'trainbr');
 
 
